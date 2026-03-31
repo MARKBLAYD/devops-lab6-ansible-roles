@@ -2,9 +2,9 @@
 - name: Install nginx with virtual hosts
   hosts: webservers
   remote_user: runner
-  become: yes
+  become: true
   become_method: sudo
-  gather_facts: yes
+  gather_facts: true
 
   vars:
     sites:
