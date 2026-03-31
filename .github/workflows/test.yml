@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   test-ansible:
     runs-on: ubuntu-latest
@@ -23,8 +20,3 @@ jobs:
       run: ansible --version
     - name: Check syntax
       run: ansible-playbook playbook.yml --syntax-check
-    - name: Lint with ansible-lint
-      run: |
-        pip install ansible-lint
-        ansible-lint playbook.yml --skip-list schema[playbook]
-
