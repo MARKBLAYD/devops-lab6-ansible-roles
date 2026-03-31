@@ -1,0 +1,58 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Create document roots for virtual hosts
+  ansible.builtin.file:
+    path: "/var/www/{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  loop: "{{ sites }}"
+
+- name: Copy index.html for each virtual host
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "/var/www/{{ item }}/index.html"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+  loop: "{{ sites }}"
+
+- name: Copy nginx config for each virtual host
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ sites }}"
+  notify: restart nginx
+
+- name: Enable virtual host sites
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item }}"
+    dest: "/etc/nginx/sites-enabled/{{ item }}"
+    state: link
+  loop: "{{ sites }}"
+  notify: restart nginx
+
+- name: Remove default nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Ensure nginx is running and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes
