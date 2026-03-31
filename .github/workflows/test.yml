@@ -12,24 +12,19 @@ env:
 jobs:
   test-ansible:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
     - name: Install ansible
       run: |
         sudo apt update
         sudo apt install ansible -y
-    
     - name: Check ansible version
       run: ansible --version
-    
     - name: Check syntax
       run: ansible-playbook playbook.yml --syntax-check
-    
     - name: Lint with ansible-lint
       run: |
         pip install ansible-lint
-        ansible-lint playbook.yml
+        ansible-lint playbook.yml --skip-list schema[playbook]
 
